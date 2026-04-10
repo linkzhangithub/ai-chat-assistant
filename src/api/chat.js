@@ -1,9 +1,11 @@
-// API 调用模块（支持流式和非流式）
+// 前端 API 调用模块（支持开发和生产环境）
 function getApiBaseUrl() {
-  const hostname = window.location.hostname;
-  const port = import.meta.env.VITE_API_PORT || 3000;
-  const protocol = window.location.protocol === "https:" ? "https:" : "http:";
-  return `${protocol}//${hostname}:${port}/api`;
+  // 开发环境：使用 localhost:3000
+  if (import.meta.env.DEV) {
+    return "http://localhost:3000/api";
+  }
+  // 生产环境（Vercel）：使用相对路径，因为前后端同域
+  return "/api";
 }
 
 async function request(endpoint, body) {
