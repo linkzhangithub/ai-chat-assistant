@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>AI 对话助手</title>
+    <!-- highlight.js 深色主题 -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+    />
+    <style>
+      /* 彻底隐藏页面滚动条 */
+      html,
+      body {
+        overflow: hidden !important;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+      html::-webkit-scrollbar,
+      body::-webkit-scrollbar {
+        display: none !important;
+      }
+      /* 确保应用容器占满视口 */
+      #app {
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
