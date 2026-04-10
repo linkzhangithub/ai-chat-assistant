@@ -4,7 +4,7 @@ function getApiBaseUrl() {
   if (import.meta.env.DEV) {
     return "http://localhost:3000/api";
   }
-  // 生产环境（Vercel）：使用相对路径，因为前后端同域
+  // 生产环境：使用相对路径（适配 Vercel / EdgeOne Pages）
   return "/api";
 }
 
