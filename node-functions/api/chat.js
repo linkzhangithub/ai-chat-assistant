@@ -1,17 +1,23 @@
-// api/chat.js - Vercel Serverless Function
+// node-functions/api/chat.js
 import fetch from "node-fetch";
 
-export default async function handler(req, res) {
-  // 只允许 POST 方法
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method Not Allowed" });
+export default async function onRequest(context) {
+  const { request } = context;
+  if (request.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method Not Allowed" }), {
+      status: 405,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
-  const { messages, systemPrompt, stream = false } = req.body;
+  const { messages, systemPrompt, stream = false } = await request.json();
   const apiKey = process.env.ZHIPU_API_KEY;
 
   if (!apiKey) {
-    return res.status(500).json({ error: "Missing Zhipu API key" });
+    return new Response(JSON.stringify({ error: "Missing Zhipu API key" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   const requestBody = {
@@ -39,17 +45,27 @@ export default async function handler(req, res) {
     }
 
     if (stream) {
-      // 流式响应：直接转发智谱的 SSE 流
-      res.setHeader("Content-Type", "text/event-stream");
-      res.setHeader("Cache-Control", "no-cache");
-      res.setHeader("Connection", "keep-alive");
-      response.body.pipe(res);
+      return new Response(response.body, {
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          Connection: "keep-alive",
+        },
+      });
     } else {
       const data = await response.json();
-      res.status(200).json({ reply: data.choices[0].message.content });
+      return new Response(
+        JSON.stringify({ reply: data.choices[0].message.content }),
+        {
+          headers: { "Content-Type": "application/json" },
+        },
+      );
     }
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message });
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }

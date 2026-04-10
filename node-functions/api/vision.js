@@ -1,16 +1,23 @@
-// api/vision.js - Vercel Serverless Function
+// node-functions/api/vision.js
 import fetch from "node-fetch";
 
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method Not Allowed" });
+export default async function onRequest(context) {
+  const { request } = context;
+  if (request.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method Not Allowed" }), {
+      status: 405,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
-  const { imageBase64, prompt } = req.body;
+  const { imageBase64, prompt } = await request.json();
   const apiKey = process.env.ZHIPU_API_KEY;
 
   if (!apiKey) {
-    return res.status(500).json({ error: "Missing Zhipu API key" });
+    return new Response(JSON.stringify({ error: "Missing Zhipu API key" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   const imageUrl = imageBase64.startsWith("data:image")
@@ -51,9 +58,17 @@ export default async function handler(req, res) {
     }
 
     const data = await response.json();
-    res.status(200).json({ reply: data.choices[0].message.content });
+    return new Response(
+      JSON.stringify({ reply: data.choices[0].message.content }),
+      {
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message });
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }
