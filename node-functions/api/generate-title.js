@@ -1,13 +1,44 @@
 // node-functions/api/generate-title.js
-export default async function handler(request, response) {
-  // 只允许 POST 请求
-  if (request.method !== "POST") {
-    return response.status(405).json({ error: "Method not allowed" });
+
+export default async function onRequest(context) {
+  const { request } = context;
+
+  // 处理 OPTIONS 预检请求（CORS）
+  if (request.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
+    });
   }
 
-  const { messages } = request.body;
+  // 只允许 POST 请求
+  if (request.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+      status: 405,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  let messages;
+  try {
+    const body = await request.json();
+    messages = body.messages;
+  } catch (e) {
+    return new Response(JSON.stringify({ error: "Invalid request body" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
-    return response.status(400).json({ error: "Invalid messages array" });
+    return new Response(JSON.stringify({ error: "Invalid messages array" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   // 构造用于生成标题的提示词
@@ -17,7 +48,6 @@ export default async function handler(request, response) {
 - 不要包含"标题："等前缀
 - 直接输出标题文本`;
 
-  // 提取最近的几轮对话（最多6条消息，避免过长）
   const recentMessages = messages.slice(-6);
   const userMessages = recentMessages
     .filter((m) => m.role === "user")
@@ -28,14 +58,19 @@ export default async function handler(request, response) {
     .map((m) => m.content)
     .join("；");
   const conversationText = `用户提问：${userMessages}\nAI回答：${assistantMessages}`;
-
   const prompt = `对话内容：${conversationText}\n请生成标题：`;
 
   try {
-    const apiKey = process.env.VITE_ZHIPU_API_KEY; // 使用环境变量中的 API Key
+    const apiKey = process.env.ZHIPU_API_KEY;
     if (!apiKey) {
       console.error("Missing ZHIPU_API_KEY");
-      return response.status(500).json({ error: "Server configuration error" });
+      return new Response(
+        JSON.stringify({ error: "Server configuration error" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
     }
 
     const url = "https://open.bigmodel.cn/api/paas/v4/chat/completions";
@@ -62,16 +97,25 @@ export default async function handler(request, response) {
     if (!resp.ok) {
       const errorText = await resp.text();
       console.error("Zhipu API error:", resp.status, errorText);
-      return response.status(502).json({ error: "AI service error" });
+      return new Response(JSON.stringify({ error: "AI service error" }), {
+        status: 502,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     const data = await resp.json();
-    const title = data.choices?.[0]?.message?.content?.trim() || "新对话";
-    // 限制长度
-    const finalTitle = title.length > 25 ? title.slice(0, 25) + "..." : title;
-    return response.status(200).json({ title: finalTitle });
+    let title = data.choices?.[0]?.message?.content?.trim() || "新对话";
+    if (title.length > 25) title = title.slice(0, 25) + "...";
+
+    return new Response(JSON.stringify({ title }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
     console.error("Generate title error:", error);
-    return response.status(500).json({ error: "Internal server error" });
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }
