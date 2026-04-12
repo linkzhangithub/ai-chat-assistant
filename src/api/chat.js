@@ -1,10 +1,10 @@
 // 前端 API 调用模块（支持开发和生产环境）
 function getApiBaseUrl() {
-  // 开发环境：使用 localhost:3000
+  // 开发环境：动态使用当前页面的 hostname + 端口 3000
   if (import.meta.env.DEV) {
-    return "http://localhost:3000/api";
+    return `http://${window.location.hostname}:3000/api`;
   }
-  // 生产环境：使用相对路径（适配 Vercel / EdgeOne Pages）
+  // 生产环境：使用相对路径（适配 EdgeOne Pages / Vercel）
   return "/api";
 }
 
