@@ -40,7 +40,12 @@ import { useXunfeiSpeech } from "../../composables/useXunfeiSpeech";
 const props = defineProps({
   modelValue: String,
 });
-const emit = defineEmits(["update:modelValue", "send", "transcript"]);
+const emit = defineEmits([
+  "update:modelValue",
+  "send",
+  "transcript",
+  "listening-change",
+]);
 
 const textareaRef = ref(null);
 const {
@@ -52,6 +57,11 @@ const {
 } = useXunfeiSpeech();
 
 let lastTranscript = "";
+
+// 监听 isListening 变化并向上传递
+watch(isListening, (newVal) => {
+  emit("listening-change", newVal);
+});
 
 // 监听语音识别结果，仅在录音状态时更新输入框
 watch(transcript, (newText) => {

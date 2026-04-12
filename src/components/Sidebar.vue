@@ -9,48 +9,59 @@
         :conversations="grouped.today"
         :currentId="currentId"
         @select="selectChat"
-        @delete="deleteChat"
+        @delete="requestDeleteChat"
       />
       <ConversationGroup
         title="昨天"
         :conversations="grouped.yesterday"
         :currentId="currentId"
         @select="selectChat"
-        @delete="deleteChat"
+        @delete="requestDeleteChat"
       />
       <ConversationGroup
         title="7天内"
         :conversations="grouped.week"
         :currentId="currentId"
         @select="selectChat"
-        @delete="deleteChat"
+        @delete="requestDeleteChat"
       />
       <ConversationGroup
         title="30天内"
         :conversations="grouped.month"
         :currentId="currentId"
         @select="selectChat"
-        @delete="deleteChat"
+        @delete="requestDeleteChat"
       />
       <ConversationGroup
         title="更早"
         :conversations="grouped.older"
         :currentId="currentId"
         @select="selectChat"
-        @delete="deleteChat"
+        @delete="requestDeleteChat"
       />
       <div v-if="totalCount === 0" class="empty-conversations">
         暂无历史对话
       </div>
     </div>
+
+    <!-- 删除确认弹窗 -->
+    <ConfirmDialog
+      v-model:visible="showDeleteDialog"
+      title="删除对话"
+      message="确定要删除这个对话吗？此操作不可撤销。"
+      confirm-text="删除"
+      cancel-text="取消"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { ref, computed } from "vue";
 import SidebarHeader from "./sidebar/SidebarHeader.vue";
 import NewChatButton from "./sidebar/NewChatButton.vue";
 import ConversationGroup from "./sidebar/ConversationGroup.vue";
+import ConfirmDialog from "./common/ConfirmDialog.vue";
 
 const props = defineProps({
   visible: Boolean,
@@ -58,6 +69,10 @@ const props = defineProps({
   currentId: String,
 });
 const emit = defineEmits(["update:visible", "select", "delete", "new-chat"]);
+
+// 删除确认弹窗状态
+const showDeleteDialog = ref(false);
+const pendingDeleteId = ref(null);
 
 // 按时间分组对话
 const grouped = computed(() => {
@@ -94,8 +109,19 @@ function selectChat(id) {
   close();
 }
 
-function deleteChat(id) {
-  emit("delete", id);
+// 请求删除对话：打开确认弹窗，记录待删除的对话 ID
+function requestDeleteChat(id) {
+  pendingDeleteId.value = id;
+  showDeleteDialog.value = true;
+}
+
+// 确认删除：真正执行删除操作
+function confirmDelete() {
+  if (pendingDeleteId.value !== null) {
+    emit("delete", pendingDeleteId.value);
+    pendingDeleteId.value = null;
+  }
+  showDeleteDialog.value = false;
 }
 
 function close() {

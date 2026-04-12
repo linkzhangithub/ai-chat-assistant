@@ -1,28 +1,31 @@
 <template>
   <div class="layout">
-    <div class="chat-container">
-      <Header
-        v-model="currentRoleId"
-        :roles="roles"
-        @clear="clearChat"
-        @toggle-sidebar="sidebarVisible = true"
+    <WelcomePage v-if="showWelcome" @start="showWelcome = false" />
+    <template v-else>
+      <div class="chat-container">
+        <Header
+          v-model="currentRoleId"
+          :roles="roles"
+          @new-chat="createNewConversation"
+          @toggle-sidebar="sidebarVisible = true"
+        />
+        <WelcomeScreen v-if="messages.length === 0" />
+        <ChatArea v-else :messages="messages" :isTyping="isTyping" />
+        <InputArea
+          :disabled="isLoading"
+          @send="handleSend"
+          @send-image="handleSendImage"
+        />
+      </div>
+      <Sidebar
+        v-model:visible="sidebarVisible"
+        :conversations="conversations"
+        :currentId="currentConversationId"
+        @select="handleSelectConversation"
+        @delete="handleDeleteConversation"
+        @new-chat="createNewConversation"
       />
-      <WelcomeScreen v-if="messages.length === 0" />
-      <ChatArea v-else :messages="messages" :isTyping="isTyping" />
-      <InputArea
-        :disabled="isLoading"
-        @send="handleSend"
-        @send-image="handleSendImage"
-      />
-    </div>
-    <Sidebar
-      v-model:visible="sidebarVisible"
-      :conversations="conversations"
-      :currentId="currentConversationId"
-      @select="handleSelectConversation"
-      @delete="handleDeleteConversation"
-      @new-chat="createNewConversation"
-    />
+    </template>
   </div>
 </template>
 
@@ -35,6 +38,7 @@ import WelcomeScreen from "./components/chat/WelcomeScreen.vue";
 import ChatArea from "./components/chat/ChatArea.vue";
 import InputArea from "./components/InputArea.vue";
 import Sidebar from "./components/Sidebar.vue";
+import WelcomePage from "./components/WelcomePage.vue";
 import { useConversations } from "./composables/useConversations";
 import { useAIChat } from "./composables/useAIChat";
 
@@ -46,6 +50,7 @@ const currentRoleId = computed({
 });
 
 const sidebarVisible = ref(false);
+const showWelcome = ref(false);
 
 const {
   conversations,
@@ -65,15 +70,10 @@ const {
   },
 );
 
-// AI 聊天逻辑（发送、流式回复、图片理解）
 const { isLoading, isTyping, handleSend, handleSendImage } = useAIChat(
   store,
   currentRoleId,
 );
-
-function clearChat() {
-  store.clearMessages();
-}
 
 function handleSelectConversation(convId) {
   switchConversation(convId);
@@ -87,5 +87,10 @@ function handleDeleteConversation(convId) {
 onMounted(() => {
   store.loadFromLocalStorage();
   loadConversations();
+  // 检查是否首次访问
+  const hasVisited = localStorage.getItem("hasVisited");
+  if (!hasVisited) {
+    showWelcome.value = true;
+  }
 });
 </script>

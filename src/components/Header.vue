@@ -42,21 +42,39 @@
       </div>
     </div>
     <div class="header-right">
-      <button class="clear-btn" v-tooltip="'清空对话'" @click="$emit('clear')">
-        清空
+      <button
+        class="new-chat-btn"
+        v-tooltip="'新建对话'"
+        @click="createNewChat"
+      >
+        <!-- 圆圈加十字图标 -->
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="16"></line>
+          <line x1="8" y1="12" x2="16" y2="12"></line>
+        </svg>
       </button>
     </div>
   </header>
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 
 const props = defineProps({
   modelValue: String,
   roles: Array,
 });
-const emit = defineEmits(["update:modelValue", "clear", "toggle-sidebar"]);
+const emit = defineEmits(["update:modelValue", "new-chat", "toggle-sidebar"]);
 
 const showDropdown = ref(false);
 
@@ -74,15 +92,29 @@ function selectRole(roleId) {
   showDropdown.value = false;
 }
 
-// 点击外部关闭下拉菜单
-window.addEventListener("click", (e) => {
+function createNewChat() {
+  emit("new-chat");
+}
+
+function handleClickOutside(e) {
   if (!e.target.closest(".role-dropdown")) {
     showDropdown.value = false;
   }
+}
+
+onMounted(() => {
+  window.addEventListener("click", handleClickOutside);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("click", handleClickOutside);
 });
 </script>
 
 <style scoped>
+* {
+  -webkit-tap-highlight-color: transparent;
+}
 header {
   display: flex;
   justify-content: space-between;
@@ -194,19 +226,25 @@ header {
   background: #e6f0ff;
   color: #007aff;
 }
-.clear-btn {
+/* 新建对话按钮样式与菜单按钮一致，图标是圆圈加十字 */
+.new-chat-btn {
   background: none;
   border: none;
-  font-size: 0.85rem;
-  color: #64748b;
   cursor: pointer;
-  padding: 6px 12px;
-  border-radius: 24px;
+  color: #64748b;
+  padding: 8px;
+  border-radius: 8px;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.clear-btn:hover {
+.new-chat-btn:hover {
   background: #f1f5f9;
   color: #1e293b;
+}
+.new-chat-btn:active {
+  transform: scale(0.96);
 }
 @media (max-width: 600px) {
   header {
@@ -223,9 +261,12 @@ header {
     font-size: 0.75rem;
     padding: 4px 10px;
   }
-  .clear-btn {
-    font-size: 0.75rem;
-    padding: 4px 10px;
+  .new-chat-btn {
+    padding: 6px;
+  }
+  .new-chat-btn svg {
+    width: 18px;
+    height: 18px;
   }
   .header-left {
     gap: 12px;

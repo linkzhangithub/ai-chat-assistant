@@ -122,7 +122,77 @@ app.post("/api/vision", async (req, res) => {
   }
 });
 
-// ✅ 修改点：使用 process.env.PORT 支持云端部署
+// 生成对话标题接口
+app.post("/api/generate-title", async (req, res) => {
+  try {
+    const { messages } = req.body;
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({ error: "Invalid messages array" });
+    }
+
+    if (!ZHIPU_API_KEY) {
+      console.error("Missing ZHIPU_API_KEY");
+      return res.status(500).json({ error: "Server configuration error" });
+    }
+
+    // 构造提示词
+    const systemPrompt = `你是一个对话标题生成助手。请根据以下对话内容，生成一个简短的标题（不超过20个字），要求：
+- 概括对话的核心主题
+- 不要使用标点符号结尾
+- 不要包含"标题："等前缀
+- 直接输出标题文本`;
+
+    // 只取最近6条消息，节省 token
+    const recentMessages = messages.slice(-6);
+    const userMessages = recentMessages
+      .filter((m) => m.role === "user")
+      .map((m) => m.content)
+      .join("；");
+    const assistantMessages = recentMessages
+      .filter((m) => m.role === "assistant")
+      .map((m) => m.content)
+      .join("；");
+    const conversationText = `用户提问：${userMessages}\nAI回答：${assistantMessages}`;
+    const prompt = `对话内容：${conversationText}\n请生成标题：`;
+
+    const response = await fetch(
+      "https://open.bigmodel.cn/api/paas/v4/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${ZHIPU_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "glm-4-flash",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: prompt },
+          ],
+          temperature: 0.3,
+          max_tokens: 50,
+          stream: false,
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Zhipu API error:", response.status, errorText);
+      return res.status(502).json({ error: "AI service error" });
+    }
+
+    const data = await response.json();
+    let title = data.choices?.[0]?.message?.content?.trim() || "新对话";
+    // 限制长度
+    if (title.length > 25) title = title.slice(0, 25) + "...";
+    res.json({ title });
+  } catch (error) {
+    console.error("Generate title error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () =>
   console.log(`Proxy running on http://0.0.0.0:${PORT}`),

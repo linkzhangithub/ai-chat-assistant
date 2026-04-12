@@ -1,5 +1,6 @@
 <template>
   <div class="input-wrapper">
+    <VoiceHint :visible="isListening" />
     <div class="input-area">
       <ImageUploader ref="imageUploaderRef" @update:image="handleImageUpdate" />
       <TextInput
@@ -7,6 +8,7 @@
         v-model="localText"
         @send="send"
         @transcript="handleTranscript"
+        @listening-change="handleListeningChange"
       />
       <SendButton
         :disabled="disabled || (!localText.trim() && !pendingImageData)"
@@ -21,6 +23,7 @@ import { ref } from "vue";
 import ImageUploader from "./input/ImageUploader.vue";
 import TextInput from "./input/TextInput.vue";
 import SendButton from "./input/SendButton.vue";
+import VoiceHint from "./input/VoiceHint.vue";
 
 const props = defineProps({
   disabled: Boolean,
@@ -31,6 +34,11 @@ const localText = ref("");
 const imageUploaderRef = ref(null);
 const textInputRef = ref(null);
 const pendingImageData = ref(null);
+const isListening = ref(false);
+
+function handleListeningChange(val) {
+  isListening.value = val;
+}
 
 function handleImageUpdate(data) {
   pendingImageData.value = data;
@@ -56,7 +64,6 @@ function send() {
     emit("send", text);
     localText.value = "";
   }
-  // 重置语音状态
   textInputRef.value?.resetTranscriptState();
   lastTranscript = "";
 }
@@ -76,5 +83,10 @@ function send() {
   gap: 12px;
   width: 100%;
   position: relative;
+}
+@media (max-width: 600px) {
+  .input-wrapper {
+    padding: 0.5rem 1rem;
+  }
 }
 </style>
