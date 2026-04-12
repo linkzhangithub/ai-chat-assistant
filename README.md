@@ -37,9 +37,13 @@ npm install
 ### 3. 在项目根目录创建 .env 文件，并填入以下环境变量（请替换为真实值）：
 ```
 ZHIPU_API_KEY=你的智谱API Key
-XUNFEI_APP_ID=你的讯飞AppID
-...
+VITE_XUNFEI_APP_ID=你的讯飞AppID
+VITE_XUNFEI_API_KEY=你的讯飞API Key
+VITE_XUNFEI_API_SECRET=你的讯飞API Secret
+
 ```
+### 注意：ZHIPU_API_KEY 用于后端（无前缀）；VITE_ 开头的变量供前端开发服务器使用（语音识别）。
+
 ### 4. 启动本地后端和前端开发服务器：
 ```
 node server.js          # 后端
