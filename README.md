@@ -2,7 +2,7 @@
 
 挑战三天时间手搓一个 AI 对话助手。全程用 DeepSeek 辅助开发，通过提示词交互快速完成功能迭代和代码优化。代码按组件拆分，状态和逻辑分离，整体干净、易维护。
 
-🔗 **在线体验**：[https://link2ai.online](https://link2ai.online)
+🔗 **在线体验**：[https://ai.link2ai.online](https://ai.link2ai.online)
 
 ## 功能
 - 流式 AI 对话（智谱 glm-4-flash，逐字输出）
@@ -20,12 +20,16 @@
 - **部署**：腾讯云 EdgeOne Pages + 自定义域名
 
 ## 本地运行
+```
 git clone https://github.com/linkzhangithub/ai-chat-assistant.git
 cd ai-chat-assistant
 npm install
+```
 # 配置 .env（ZHIPU_API_KEY、XUNFEI_APP_ID 等）
+```
 node server.js          # 后端
 npm run dev             # 前端
+```
 
 ## 说明
 纯个人练习作品，展示 AIGC 前端开发能力
