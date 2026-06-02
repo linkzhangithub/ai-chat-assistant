@@ -22,56 +22,92 @@ defineProps({
 </script>
 
 <style scoped>
-/* 样式与原版一致，无光标相关代码 */
 .msg {
   display: flex;
   width: 100%;
-  margin-bottom: 12px;
+  margin-bottom: var(--spacing-md);
+  animation: fadeInUp 0.3s ease;
 }
+
 .msg.user {
   justify-content: flex-end;
 }
+
 .msg.assistant {
   justify-content: flex-start;
 }
+
 .bubble {
-  max-width: 92%;
-  padding: 12px 18px;
-  border-radius: 24px;
-  line-height: 1.5;
-  font-size: 0.95rem;
+  max-width: 75%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  line-height: 1.6;
+  font-size: var(--font-base);
   word-wrap: break-word;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
 }
+
 .msg.user .bubble {
-  background: #007aff;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   color: white;
+  border-bottom-right-radius: var(--radius-sm);
 }
+
 .msg.assistant .bubble {
-  background: #f1f3f5;
-  color: #1e293b;
+  background: var(--surface);
+  color: var(--neutral-900);
+  border: 1px solid var(--border-color);
+  border-bottom-left-radius: var(--radius-sm);
 }
+
 .message-image {
-  margin-bottom: 8px;
+  margin-bottom: var(--spacing-sm);
 }
+
 .message-image img {
-  max-width: 200px;
-  max-height: 200px;
-  border-radius: 12px;
+  max-width: 280px;
+  max-height: 280px;
+  border-radius: var(--radius-md);
   object-fit: cover;
 }
+
 .message-text {
   word-break: break-word;
 }
-@media (max-width: 600px) {
-  .bubble {
-    max-width: 95%;
-    padding: 10px 14px;
-    font-size: 0.9rem;
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .bubble {
+    max-width: 85%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-sm);
+  }
+  
   .message-image img {
-    max-width: 150px;
-    max-height: 150px;
+    max-width: 200px;
+    max-height: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bubble {
+    max-width: 90%;
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+  
+  .message-image img {
+    max-width: 160px;
+    max-height: 160px;
   }
 }
 </style>

@@ -1,275 +1,289 @@
 <template>
-  <header>
-    <div class="header-left">
-      <button
-        class="menu-btn"
-        v-tooltip="'菜单'"
-        @click="$emit('toggle-sidebar')"
-      >
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <line x1="3" y1="12" x2="21" y2="12"></line>
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-      </button>
-      <div class="logo">🤖 AI 当前角色为：</div>
-      <div class="role-dropdown">
-        <button class="role-btn" @click.stop="toggleDropdown">
-          {{ currentRoleName }}
-          <span class="arrow" :class="{ rotated: showDropdown }">▼</span>
+  <header class="header">
+    <div class="header-content">
+      <div class="header-left">
+        <button class="nav-btn back-btn" @click="$emit('go-home')" title="返回首页">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
         </button>
-        <transition name="dropdown">
-          <div v-if="showDropdown" class="dropdown-menu">
-            <div
-              v-for="role in roles"
-              :key="role.id"
-              :class="['dropdown-item', { active: role.id === modelValue }]"
-              @click="selectRole(role.id)"
-            >
-              {{ role.name }}
-            </div>
-          </div>
-        </transition>
+        <button class="nav-btn sidebar-btn" @click="$emit('toggle-sidebar')" title="打开侧边栏">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12h18M3 6h18M3 18h18"/>
+          </svg>
+        </button>
       </div>
-    </div>
-    <div class="header-right">
-      <button
-        class="new-chat-btn"
-        v-tooltip="'新建对话'"
-        @click="createNewChat"
-      >
-        <!-- 圆圈加十字图标 -->
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="8" x2="12" y2="16"></line>
-          <line x1="8" y1="12" x2="16" y2="12"></line>
-        </svg>
-      </button>
+      
+      <div class="header-center">
+        <span class="role-label">当前对话助手为：</span>
+        <div class="role-selector" @click="showRoleMenu = !showRoleMenu">
+          <div class="role-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <span class="role-name">{{ currentRoleName }}</span>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+        
+        <div v-if="showRoleMenu" class="role-menu">
+          <div 
+            v-for="role in roles" 
+            :key="role.id"
+            class="role-option"
+            :class="{ active: role.id === modelValue }"
+            @click="selectRole(role.id)"
+          >
+            {{ role.name }}
+          </div>
+        </div>
+      </div>
+      
+      <div class="header-right">
+        <button class="header-btn" @click="$emit('new-chat')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+        </button>
+      </div>
     </div>
   </header>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed } from 'vue';
 
 const props = defineProps({
-  modelValue: String,
-  roles: Array,
+  roles: { type: Array, required: true },
+  modelValue: { type: String, required: true },
 });
-const emit = defineEmits(["update:modelValue", "new-chat", "toggle-sidebar"]);
 
-const showDropdown = ref(false);
+const emit = defineEmits(['update:modelValue', 'new-chat', 'toggle-sidebar', 'go-home']);
+
+const showRoleMenu = ref(false);
 
 const currentRoleName = computed(() => {
-  const role = props.roles.find((r) => r.id === props.modelValue);
-  return role ? role.name : "选择角色";
+  const role = props.roles.find(r => r.id === props.modelValue);
+  return role?.name || '选择角色';
 });
-
-function toggleDropdown() {
-  showDropdown.value = !showDropdown.value;
-}
 
 function selectRole(roleId) {
-  emit("update:modelValue", roleId);
-  showDropdown.value = false;
+  emit('update:modelValue', roleId);
+  showRoleMenu.value = false;
 }
-
-function createNewChat() {
-  emit("new-chat");
-}
-
-function handleClickOutside(e) {
-  if (!e.target.closest(".role-dropdown")) {
-    showDropdown.value = false;
-  }
-}
-
-onMounted(() => {
-  window.addEventListener("click", handleClickOutside);
-});
-
-onUnmounted(() => {
-  window.removeEventListener("click", handleClickOutside);
-});
 </script>
 
 <style scoped>
-* {
-  -webkit-tap-highlight-color: transparent;
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
-header {
+
+.header-content {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: var(--spacing-md) var(--spacing-lg);
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 12px 24px;
-  background: #ffffff;
-  border-bottom: 1px solid #eaeef2;
+  justify-content: space-between;
 }
+
 .header-left {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: var(--spacing-sm);
+  flex: 1;
 }
+
+.nav-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--neutral-500);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  padding: 0;
+  box-shadow: none;
+  flex-shrink: 0;
+}
+
+.nav-btn:hover {
+  background: var(--neutral-100);
+  color: var(--neutral-700);
+  border-color: var(--neutral-300);
+}
+
+.nav-btn:active {
+  background: var(--neutral-200);
+}
+
+.header-center {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  position: relative;
+}
+
+.role-label {
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: var(--neutral-700);
+  white-space: nowrap;
+}
+
+.role-selector {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--neutral-100);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.role-selector:hover {
+  background: var(--neutral-200);
+}
+
+.role-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  border-radius: 50%;
+  color: white;
+}
+
+.role-name {
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: var(--neutral-700);
+}
+
+.chevron {
+  color: var(--neutral-500);
+  transition: transform var(--transition-fast);
+}
+
+.role-selector:hover .chevron {
+  transform: rotate(180deg);
+}
+
+.role-menu {
+  position: absolute;
+  top: calc(100% + var(--spacing-sm));
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  min-width: 160px;
+  padding: var(--spacing-xs);
+  z-index: 200;
+}
+
+.role-option {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
+  color: var(--neutral-700);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.role-option:hover {
+  background: var(--neutral-100);
+}
+
+.role-option.active {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+}
+
 .header-right {
   display: flex;
   align-items: center;
+  gap: var(--spacing-sm);
+  flex: 1;
+  justify-content: flex-end;
 }
-.menu-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #64748b;
-  padding: 8px;
-  border-radius: 8px;
-  transition: all 0.2s;
+
+.header-btn {
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-.menu-btn:hover {
-  background: #f1f5f9;
-  color: #1e293b;
-}
-.logo {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #1e293b;
-  white-space: nowrap;
-}
-.role-dropdown {
-  position: relative;
-}
-.role-btn {
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  padding: 6px 12px;
-  border-radius: 24px;
-  font-size: 0.85rem;
-  color: #1e293b;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--neutral-500);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
+  padding: 0;
+  box-shadow: none;
 }
-.role-btn:hover {
-  background: #e2e8f0;
+
+.header-btn:hover {
+  background: var(--neutral-100);
+  color: var(--neutral-700);
+  border-color: var(--neutral-300);
 }
-.role-btn:active {
-  transform: scale(0.96);
-}
-.arrow {
-  display: inline-block;
-  transition: transform 0.2s ease;
-  font-size: 0.7rem;
-  line-height: 1;
-  color: #64748b;
-}
-.arrow.rotated {
-  transform: rotate(180deg);
-}
-.dropdown-menu {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  margin-top: 8px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  min-width: 100%;
-  width: max-content;
-  z-index: 100;
-  overflow: hidden;
-}
-.dropdown-enter-active,
-.dropdown-leave-active {
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
-}
-.dropdown-enter-from,
-.dropdown-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-.dropdown-item {
-  padding: 8px 16px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  background: #f1f5f9;
-  color: #1e293b;
-  transition: background 0.1s;
-}
-.dropdown-item:hover {
-  background: #e2e8f0;
-}
-.dropdown-item.active {
-  background: #e6f0ff;
-  color: #007aff;
-}
-/* 新建对话按钮样式与菜单按钮一致，图标是圆圈加十字 */
-.new-chat-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #64748b;
-  padding: 8px;
-  border-radius: 8px;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.new-chat-btn:hover {
-  background: #f1f5f9;
-  color: #1e293b;
-}
-.new-chat-btn:active {
-  transform: scale(0.96);
-}
-@media (max-width: 600px) {
-  header {
-    padding: 12px 16px;
+
+@media (max-width: 768px) {
+  .header-content {
+    padding: var(--spacing-sm) var(--spacing-md);
   }
-  .menu-btn svg {
-    width: 18px;
-    height: 18px;
+  
+  .role-label {
+    display: none;
   }
-  .logo {
-    font-size: 0.9rem;
+  
+  .role-name {
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
-  .role-btn {
-    font-size: 0.75rem;
-    padding: 4px 10px;
+}
+
+@media (max-width: 480px) {
+  .nav-btn {
+    width: 32px;
+    height: 32px;
   }
-  .new-chat-btn {
-    padding: 6px;
+  
+  .role-selector {
+    padding: var(--spacing-xs) var(--spacing-sm);
   }
-  .new-chat-btn svg {
-    width: 18px;
-    height: 18px;
+  
+  .role-icon {
+    width: 24px;
+    height: 24px;
   }
-  .header-left {
-    gap: 12px;
+  
+  .role-name {
+    display: none;
+  }
+  
+  .header-btn {
+    width: 32px;
+    height: 32px;
   }
 }
 </style>

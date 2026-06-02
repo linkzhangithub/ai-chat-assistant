@@ -58,12 +58,10 @@ const {
 
 let lastTranscript = "";
 
-// 监听 isListening 变化并向上传递
 watch(isListening, (newVal) => {
   emit("listening-change", newVal);
 });
 
-// 监听语音识别结果，仅在录音状态时更新输入框
 watch(transcript, (newText) => {
   if (isListening.value && newText && newText !== lastTranscript) {
     lastTranscript = newText;
@@ -81,7 +79,6 @@ const toggleVoiceInput = async () => {
   }
 };
 
-// 重置语音状态（发送后调用）
 function resetTranscriptState() {
   lastTranscript = "";
   clearTranscript();
@@ -100,7 +97,7 @@ function autoResize() {
     textarea.style.height = maxHeight + "px";
     textarea.style.overflowY = "auto";
   } else {
-    textarea.style.height = newHeight + "px";
+    textarea.style.height = Math.max(newHeight, 80) + "px";
     textarea.style.overflowY = "hidden";
   }
 }
@@ -120,7 +117,7 @@ watch(
   () => props.modelValue,
   () => {
     nextTick(() => autoResize());
-  },
+  }
 );
 
 nextTick(() => autoResize());
@@ -136,7 +133,7 @@ defineExpose({ resetTranscriptState });
 }
 textarea {
   width: 100%;
-  padding: 12px 48px 12px 16px;
+  padding: 28px 48px 28px 16px;
   border: none;
   background: rgba(245, 245, 245, 0.8);
   backdrop-filter: blur(8px);
@@ -156,6 +153,9 @@ textarea:focus {
   background: rgba(255, 255, 255, 0.9);
   box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
 }
+textarea::placeholder {
+  color: #9ca3af;
+}
 .mic-btn {
   position: absolute;
   right: 12px;
@@ -172,22 +172,25 @@ textarea:focus {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  transition: all 0.2s;
+  transition: background 0.2s, color 0.2s;
   z-index: 2;
+  box-sizing: border-box;
 }
 .mic-btn:hover {
   background: rgba(0, 0, 0, 0.05);
   color: #1e293b;
+  transform: translateY(-50%);
 }
 .mic-btn.active {
   color: #007aff;
   background: rgba(0, 122, 255, 0.1);
+  transform: translateY(-50%);
 }
 @media (max-width: 600px) {
   textarea {
     font-size: 1rem;
     min-height: 70px;
-    padding: 10px 44px 10px 12px;
+    padding: 24px 44px 24px 12px;
   }
   .mic-btn {
     right: 8px;

@@ -8,6 +8,7 @@
           :roles="roles"
           @new-chat="createNewConversation"
           @toggle-sidebar="sidebarVisible = true"
+          @go-home="goHome"
         />
         <WelcomeScreen v-if="messages.length === 0" />
         <ChatArea v-else :messages="messages" :isTyping="isTyping" />
@@ -82,6 +83,11 @@ function handleSelectConversation(convId) {
 
 function handleDeleteConversation(convId) {
   deleteConversation(convId);
+}
+
+function goHome() {
+  showWelcome.value = true;
+  localStorage.removeItem("hasVisited");
 }
 
 onMounted(() => {
