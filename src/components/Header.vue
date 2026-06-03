@@ -246,12 +246,22 @@ function selectRole(roleId) {
 }
 
 @media (max-width: 768px) {
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding-top: env(safe-area-inset-top, 0px);
+    z-index: 1000;
+  }
+  
   .header-content {
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: var(--spacing-md);
+    min-height: 56px;
   }
   
   .role-label {
-    font-size: var(--font-xs);
+    font-size: var(--font-sm);
     white-space: nowrap;
   }
   
@@ -261,21 +271,52 @@ function selectRole(roleId) {
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  
+  .nav-btn {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .nav-btn svg {
+    width: 22px;
+    height: 22px;
+  }
+  
+  .header-btn {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .header-btn svg {
+    width: 20px;
+    height: 20px;
+  }
 }
 
 @media (max-width: 480px) {
+  .header-content {
+    padding: var(--spacing-sm) var(--spacing-md);
+    min-height: 52px;
+  }
+  
   .nav-btn {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
+  }
+  
+  .nav-btn svg {
+    width: 20px;
+    height: 20px;
   }
   
   .role-selector {
     padding: var(--spacing-xs) var(--spacing-sm);
+    gap: 6px;
   }
   
   .role-icon {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
   }
   
   .role-icon svg {
@@ -284,22 +325,27 @@ function selectRole(roleId) {
   }
   
   .role-label {
-    font-size: 10px;
+    font-size: 11px;
   }
   
   .role-name {
-    max-width: 50px;
-    font-size: 10px;
+    max-width: 45px;
+    font-size: 11px;
   }
   
   .chevron {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
   }
   
   .header-btn {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
+  }
+  
+  .header-btn svg {
+    width: 18px;
+    height: 18px;
   }
 }
 </style>
