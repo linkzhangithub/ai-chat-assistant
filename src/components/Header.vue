@@ -251,11 +251,12 @@ function selectRole(roleId) {
   }
   
   .role-label {
-    display: none;
+    font-size: var(--font-xs);
+    white-space: nowrap;
   }
   
   .role-name {
-    max-width: 80px;
+    max-width: 60px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -273,12 +274,27 @@ function selectRole(roleId) {
   }
   
   .role-icon {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
+  }
+  
+  .role-icon svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .role-label {
+    font-size: 10px;
   }
   
   .role-name {
-    display: none;
+    max-width: 50px;
+    font-size: 10px;
+  }
+  
+  .chevron {
+    width: 12px;
+    height: 12px;
   }
   
   .header-btn {
