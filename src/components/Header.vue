@@ -249,12 +249,7 @@ function selectRole(roleId) {
 
 @media (max-width: 768px) {
   .header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
     padding-top: env(safe-area-inset-top, 0px);
-    z-index: 1000;
     height: 56px;
   }
   

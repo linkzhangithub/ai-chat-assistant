@@ -88,13 +88,8 @@ function send() {
 }
 @media (max-width: 768px) {
   .input-wrapper {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
     padding: 0.5rem 1rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
     height: 64px;
-    z-index: 1000;
     max-width: 900px;
     margin: 0 auto;
   }
