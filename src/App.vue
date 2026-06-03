@@ -93,10 +93,11 @@ function goHome() {
 onMounted(() => {
   store.loadFromLocalStorage();
   loadConversations();
-  // 检查是否首次访问
+  // 首次访问显示欢迎页
   const hasVisited = localStorage.getItem("hasVisited");
   if (!hasVisited) {
     showWelcome.value = true;
+    localStorage.setItem("hasVisited", "true");
   }
 });
 </script>
