@@ -76,6 +76,7 @@ function send() {
   border-top: 1px solid #eaeef2;
   padding: 0.75rem 1.5rem;
   position: relative;
+  height: 88px;
 }
 .input-area {
   display: flex;
@@ -83,10 +84,25 @@ function send() {
   gap: 12px;
   width: 100%;
   position: relative;
+  height: 100%;
 }
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .input-wrapper {
-    padding: 0.5rem 1rem;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.5rem 1rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
+    height: 64px;
+    z-index: 1000;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+}
+@media (max-width: 480px) {
+  .input-wrapper {
+    padding: 0.5rem 1rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
+    height: 60px;
   }
 }
 </style>

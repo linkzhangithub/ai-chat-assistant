@@ -83,6 +83,7 @@ function selectRole(roleId) {
   position: sticky;
   top: 0;
   z-index: 100;
+  height: 64px;
 }
 
 .header-content {
@@ -92,6 +93,7 @@ function selectRole(roleId) {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  height: 100%;
 }
 
 .header-left {
@@ -253,10 +255,12 @@ function selectRole(roleId) {
     right: 0;
     padding-top: env(safe-area-inset-top, 0px);
     z-index: 1000;
+    height: 56px;
   }
   
   .header-content {
     padding: var(--spacing-md);
+    height: 100%;
     min-height: 56px;
   }
   
@@ -294,6 +298,10 @@ function selectRole(roleId) {
 }
 
 @media (max-width: 480px) {
+  .header {
+    height: 52px;
+  }
+  
   .header-content {
     padding: var(--spacing-sm) var(--spacing-md);
     min-height: 52px;
