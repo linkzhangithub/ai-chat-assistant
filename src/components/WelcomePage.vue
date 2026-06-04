@@ -83,11 +83,12 @@
 </template>
 
 <script setup>
-const emit = defineEmits(['start']);
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 function start() {
-  localStorage.setItem('hasVisited', 'true');
-  emit('start');
+  router.push('/chat')
 }
 </script>
 
